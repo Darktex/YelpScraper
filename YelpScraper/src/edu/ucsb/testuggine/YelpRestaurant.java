@@ -115,8 +115,14 @@ public class YelpRestaurant {
 
 	private String mineWebsite() {
 		Elements urlContainer = restaurantInfoContainer.select("div#bizUrl");
-		if (!urlContainer.isEmpty())
-			return urlContainer.first().text();
+		if (!urlContainer.isEmpty()) {
+			String url = urlContainer.first().text();
+			if (url.length() > 98) {
+				url = url.contains("#")?url.substring(0, url.indexOf("#")):""; // if the URL is too long, it gets dropped
+			}
+			return url;
+		}
+			
 		else
 			return "";
 	}
