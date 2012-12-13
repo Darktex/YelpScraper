@@ -103,6 +103,12 @@ public class YelpScraper {
 
 			String restaurantPostfix = restaurantDiv.select("h2 > a[href]").first().attr("href").toString();
 			String restaurantUrl = stripTags("http://www.yelp.com" + restaurantPostfix);
+			while (restaurantUrl.length() > 99) { 
+				if (restaurantUrl.contains("#"))
+					restaurantUrl = restaurantUrl.substring(0, restaurantUrl.indexOf("#"));
+				else  // Kinda last resort. We just give up on it. To not screw up the numbering, we keep the number of those restaurants assigned. We will just skip from e.g. number 21 to number 23.  
+					continue;
+			}
 			Document restaurantPage = getHTMLAndSaveInDB(restaurantUrl);
 			YelpRestaurant yr = new YelpRestaurant(restaurantPage, restaurantUrl);
 			StdOut.println((current+j) + ") " + yr.getName() + " (" + yr.totalNumberOfReviews + " reviews)");
