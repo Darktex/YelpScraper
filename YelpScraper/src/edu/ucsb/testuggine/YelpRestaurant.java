@@ -126,6 +126,7 @@ public class YelpRestaurant {
 		else
 			return "";
 	}
+	
 
 	private Float mineScore() {
 		Elements scoreContainers = restaurantInfoContainer
