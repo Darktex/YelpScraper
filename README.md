@@ -15,3 +15,5 @@ Two use cases are supported:
 
 
 (you can use a subset of these commands and print them in any order).
+
+I recommend launching this with java -Xmx4g, but the more the better.
