@@ -1,5 +1,8 @@
 package edu.ucsb.testuggine;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /** Yelp follows this schema for postal addresses: http://schema.org/PostalAddress */
 
 public class Address {
@@ -24,6 +27,48 @@ public class Address {
 		this.city = city;
 		this.region = region;
 	}
+	
+	public Address(String numberAndStreet, String zip, String city, String region) {
+		String[] split = splitNumAndStreet(numberAndStreet);
+		this.number = split[0];
+		this.street = split[1];
+		this.zip = zip;
+		this.city = city;
+		this.region = region;
+	}
+	
+	/** Number is in return value[0], street name is in [1] */
+	private static String[] splitNumAndStreet(String address) {
+		if (address.contains("Ste")) { // Some address indicate the suite. I
+										// will have it removed
+			address = address.substring(0, address.indexOf("Ste"));
+		}
+		String[] result = new String[2];
+		Pattern numberFirst = Pattern.compile("(\\d+)\\s+(\\D+(\\s \\D+)?)");
+		Pattern streetFirst = Pattern.compile("(\\D+(\\s \\D+)?)\\s+(\\d+)");
+
+		Matcher numFirstMatcher = numberFirst.matcher(address);
+		Matcher streetFirstMatcher = streetFirst.matcher(address);
+
+		if (numFirstMatcher.matches() && !streetFirstMatcher.matches()) { // Num
+																			// first
+			result[0] = numFirstMatcher.group(1);
+			result[1] = numFirstMatcher.group(2);
+		} else if (!numFirstMatcher.matches() && streetFirstMatcher.matches()) { // Address
+																					// first
+			result[0] = streetFirstMatcher.group(3); // the group (\\d+) is opened
+													// third
+			result[1] = streetFirstMatcher.group(1);
+		}
+
+		else { // Both match or none match, i.e. unknown format.
+			result[0] = "0"; // Something wrong, we give up splitting
+			result[1] = address;
+		}
+
+		return result;
+	}
+	
 	@Override
 	public String toString() {
 		return "Address [" + number + " " + street + "\n"

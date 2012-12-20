@@ -2,8 +2,6 @@ package edu.ucsb.testuggine;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -88,8 +86,6 @@ public class YelpRestaurant {
 				.first();
 		String numAndStreet = addressContainer.select(
 				"span[itemprop=streetAddress]").text();
-		String[] split = splitNumAndStreet(numAndStreet);
-
 		String city = addressContainer.select("span[itemprop=addressLocality]")
 				.text();
 		String region = addressContainer.select("span[itemprop=addressRegion]")
@@ -97,7 +93,7 @@ public class YelpRestaurant {
 		String zipcode = addressContainer.select("span[itemprop=postalCode]")
 				.text();
 
-		Address result = new Address(split[0], split[1], zipcode, city, region);
+		Address result = new Address(numAndStreet, zipcode, city, region);
 		return result;
 	}
 
@@ -136,38 +132,6 @@ public class YelpRestaurant {
 		String scoreText = scoreContainers.first().attr("alt");
 		scoreText = scoreText.substring(0, scoreText.indexOf(" star rating"));
 		Float result = Float.valueOf(scoreText);
-		return result;
-	}
-
-	/** Number is in return value[0], street name is in [1] */
-	private static String[] splitNumAndStreet(String address) {
-		if (address.contains("Ste")) { // Some address indicate the suite. I
-										// will have it removed
-			address = address.substring(0, address.indexOf("Ste"));
-		}
-		String[] result = new String[2];
-		Pattern numberFirst = Pattern.compile("(\\d+)\\s+(\\D+(\\s \\D+)?)");
-		Pattern streetFirst = Pattern.compile("(\\D+(\\s \\D+)?)\\s+(\\d+)");
-
-		Matcher numFirstMatcher = numberFirst.matcher(address);
-		Matcher streetFirstMatcher = streetFirst.matcher(address);
-
-		if (numFirstMatcher.matches() && !streetFirstMatcher.matches()) { // Num
-																			// first
-			result[0] = numFirstMatcher.group(1);
-			result[1] = numFirstMatcher.group(2);
-		} else if (!numFirstMatcher.matches() && streetFirstMatcher.matches()) { // Address
-																					// first
-			result[0] = streetFirstMatcher.group(3); // the group (\\d+) is opened
-													// third
-			result[1] = streetFirstMatcher.group(1);
-		}
-
-		else { // Both match or none match, i.e. unknown format.
-			result[0] = "0"; // Something wrong, we give up splitting
-			result[1] = address;
-		}
-
 		return result;
 	}
 
